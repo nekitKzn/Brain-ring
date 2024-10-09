@@ -10,7 +10,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.media.AudioClip;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
@@ -56,7 +55,7 @@ public class HelloApplication extends Application {
         var logoImageView = new ImageView(logoImage);
         logoImageView.setFitWidth(450);
         logoImageView.setPreserveRatio(true);
-        logoImageView.setStyle("-fx-effect: dropshadow(gaussian, white, 60, 0.7, 0.5, 0);");
+        logoImageView.setStyle("-fx-effect: dropshadow(gaussian, white, 100, 0.8, 0, 0);");
 
         timerLabel = new Label(INITIAL_TIME_STRING);
         timerLabel.setStyle("-fx-font-size: 400px; -fx-font-family: 'Courier New'; -fx-text-fill: white;");
@@ -64,12 +63,12 @@ public class HelloApplication extends Application {
         timerLabel.setAlignment(Pos.CENTER);
 
         resultLabel = new Label("");
-        resultLabel.setStyle("-fx-font-size: 100px; -fx-text-fill: white;");
+        resultLabel.setStyle("-fx-font-family: 'Comic Sans MS'; -fx-font-size: 90px; -fx-text-fill: white;");
         resultLabel.setMaxWidth(Double.MAX_VALUE);
         resultLabel.setAlignment(Pos.CENTER);
 
         answerLabel = new Label("");
-        answerLabel.setStyle("-fx-font-size: 50px; -fx-text-fill: white;");
+        answerLabel.setStyle("-fx-font-family: 'Comic Sans MS'; -fx-font-size: 50px; -fx-text-fill: white;");
         answerLabel.setMaxWidth(Double.MAX_VALUE);
         answerLabel.setAlignment(Pos.CENTER);
 

@@ -16,7 +16,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 
-public class HelloApplication extends Application {
+public class Game extends Application {
 
     private static final long INITIAL_TIME_MS = 20000;
     private static final String INITIAL_TIME_STRING = "20.00";
@@ -30,12 +30,17 @@ public class HelloApplication extends Application {
     private MediaPlayer startSound;
     private MediaPlayer answerSound;
 
+    private ImageView logoImageView;
+
     private long startTime;
     private long elapsedPauseTime = 0; // Время, на которое был остановлен таймер
     private boolean timerRunning = false;
     private boolean falseStart = false;
     private AnimationTimer timer;
     private Pane root;
+
+    private VBox layout;
+    private Scene scene;
 
     public static void main(String[] args) {
         launch(args);
@@ -45,14 +50,17 @@ public class HelloApplication extends Application {
     public void start(Stage stage) {
 
         // Загружаем звуки
-        startSound = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/start.wav")).toString()));
-        endSound = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/endTime.wav")).toString()));
-        answerSound = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/answer.wav")).toString()));
-        falseStartSound = new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource("/sounds/falseStart.wav")).toString()));
-
+        startSound = new MediaPlayer(
+                new Media(Objects.requireNonNull(getClass().getResource("/sounds/start.wav")).toString()));
+        endSound = new MediaPlayer(
+                new Media(Objects.requireNonNull(getClass().getResource("/sounds/endTime.wav")).toString()));
+        answerSound = new MediaPlayer(
+                new Media(Objects.requireNonNull(getClass().getResource("/sounds/answer.wav")).toString()));
+        falseStartSound = new MediaPlayer(
+                new Media(Objects.requireNonNull(getClass().getResource("/sounds/falseStart.wav")).toString()));
 
         Image logoImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/logo.png")));
-        var logoImageView = new ImageView(logoImage);
+        logoImageView = new ImageView(logoImage);
         logoImageView.setFitWidth(450);
         logoImageView.setPreserveRatio(true);
         logoImageView.setStyle("-fx-effect: dropshadow(gaussian, white, 100, 0.8, 0, 0);");
@@ -72,27 +80,42 @@ public class HelloApplication extends Application {
         answerLabel.setMaxWidth(Double.MAX_VALUE);
         answerLabel.setAlignment(Pos.CENTER);
 
-        VBox layout = new VBox(5, answerLabel, resultLabel, timerLabel, logoImageView);
+        layout = new VBox(5, answerLabel, resultLabel, timerLabel, logoImageView);
         layout.setAlignment(Pos.CENTER);
 
         root = new Pane();
         root.setStyle("-fx-background-color: black;");
-
         root.getChildren().add(layout);
 
-        Scene scene = getScene();
+        scene = getScene();
 
-        stage.fullScreenProperty().addListener((obs, wasFullScreen, isFullScreen) -> {
-            if (Boolean.TRUE.equals(isFullScreen)) {
-                layout.setPrefWidth(stage.getWidth());
-                layout.setPrefHeight(stage.getHeight());
-                layout.setAlignment(Pos.CENTER);
-            }
-        });
+        scene.heightProperty().addListener((obs, oldVal, newVal) -> resizeElements(scene.getWidth(), newVal.doubleValue()));
+
+        stage.setFullScreen(true);
 
         stage.setScene(scene);
         stage.setTitle("Brain Ring");
         stage.show();
+    }
+
+    // Метод для изменения размеров элементов
+    private void resizeElements(double width, double height) {
+        // Пример логики: адаптируем размеры в зависимости от ширины и высоты окна
+        double logoWidth = height * 0.43; // 43% от ширины окна
+        logoImageView.setFitWidth(logoWidth);
+
+        double timerFontSize = height * 0.38; // 38% от высоты окна для шрифта таймера
+        timerLabel.setStyle("-fx-font-size: " + timerFontSize + "px; -fx-font-family: 'Courier New'; -fx-text-fill: white;");
+
+        double resultFontSize = height * 0.086; // 8.6% от высоты окна для шрифта результата
+        resultLabel.setStyle("-fx-font-size: " + resultFontSize + "px; -fx-font-family: 'Comic Sans MS'; -fx-text-fill: white;");
+
+        double answerFontSize = height * 0.048; // 4.8% от высоты окна для шрифта ответа
+        answerLabel.setStyle("-fx-font-size: " + answerFontSize + "px; -fx-font-family: 'Comic Sans MS'; -fx-text-fill: white;");
+
+        layout.setPrefWidth(width);
+        layout.setPrefHeight(height);
+        layout.setAlignment(Pos.CENTER);
     }
 
     private void play(MediaPlayer player) {
@@ -102,16 +125,16 @@ public class HelloApplication extends Application {
     }
 
     private Scene getScene() {
-        Scene scene = new Scene(root);
+        scene = new Scene(root);
         scene.setOnKeyPressed(e -> {
 
             String key = e.getText().toLowerCase();
 
-            if (isResetKey(key)) { // кнопка ведущего "НОВАЯ ИГРА"
+           if (isResetKey(key)) { // кнопка ведущего "НОВАЯ ИГРА"
                 resetTimer();
                 changeBackgroundColor("black");
 
-            } else if (!timerRunning && !falseStart && isStartKey(key)){ // кнопка ведущего "ЗАПУСТИТЬ"
+            } else if (!timerRunning && !falseStart && isStartKey(key)) { // кнопка ведущего "ЗАПУСТИТЬ"
                 play(startSound);
                 startTimer();
                 changeBackgroundColor("black");
@@ -132,13 +155,15 @@ public class HelloApplication extends Application {
                 checkFirstSecond();
                 answerLabel.setText("Отвечает ЗЕЛЕНАЯ команда");
 
-            } else if (!timerRunning && !falseStart && isInitialTime() && isRedTeamKey(key)) { // фальтстарт КРАСНОЙ команды
+            } else if (!timerRunning && !falseStart && isInitialTime() && isRedTeamKey(
+                    key)) { // фальтстарт КРАСНОЙ команды
                 play(falseStartSound);
                 falseStart = true;
                 changeBackgroundColor("#ad3333");
                 resultLabel.setText("ФАЛЬСТАРТ КРАСНОЙ КОМАНДЫ");
 
-            } else if (!timerRunning && !falseStart && isInitialTime() && isGreenTeamKey(key)) { // фальтстарт ЗЕЛЕНОЙ команды
+            } else if (!timerRunning && !falseStart && isInitialTime() && isGreenTeamKey(
+                    key)) { // фальтстарт ЗЕЛЕНОЙ команды
                 play(falseStartSound);
                 falseStart = true;
                 changeBackgroundColor("#4f6b34");

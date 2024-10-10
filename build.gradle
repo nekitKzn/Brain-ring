@@ -31,7 +31,7 @@ tasks.withType(JavaCompile) {
 
 application {
     mainModule = 'com.nekitvp.brain'
-    mainClass = 'com.nekitvp.brain.HelloApplication'
+    mainClass = 'com.nekitvp.brain.Game'
 }
 
 javafx {
@@ -48,10 +48,4 @@ dependencies {
 
 test {
     useJUnitPlatform()
-}
-
-jlink {
-    jpackage {
-        installerType = 'exe'
-    }
 }

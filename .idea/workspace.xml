@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6d4ba2f4-951e-425a-9849-6a07e97df816" name="Changes" comment="fix">
+    <list default="true" id="6d4ba2f4-951e-425a-9849-6a07e97df816" name="Changes" comment="add adaptive">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/nekitvp/brain/HelloApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/nekitvp/brain/HelloApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/nekitvp/brain/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/nekitvp/brain/Game.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,35 +31,6 @@
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="brain" type="f1a62948:ProjectNode" />
               </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="brain" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="brain" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="brain" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="build setup" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="brain" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="distribution" type="c8890929:TasksNode$1" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="brain" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-                <item name="shadow" type="c8890929:TasksNode$1" />
-              </path>
             </expand>
             <select />
           </tree_state>
@@ -81,49 +52,50 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "Gradle.brain [:HelloApplication.main()].executor": "Run",
-    "Gradle.brain [assemble].executor": "Run",
-    "Gradle.brain [buildDependents].executor": "Run",
-    "Gradle.brain [buildEnvironment].executor": "Run",
-    "Gradle.brain [buildNeeded].executor": "Run",
-    "Gradle.brain [build].executor": "Run",
-    "Gradle.brain [classes].executor": "Run",
-    "Gradle.brain [cle].executor": "Run",
-    "Gradle.brain [clean].executor": "Run",
-    "Gradle.brain [dependencies].executor": "Run",
-    "Gradle.brain [dependencyInsight].executor": "Run",
-    "Gradle.brain [distZip].executor": "Run",
-    "Gradle.brain [jar].executor": "Run",
-    "Gradle.brain [jlinkZip].executor": "Run",
-    "Gradle.brain [jlink].executor": "Run",
-    "Gradle.brain [jpackageImage].executor": "Run",
-    "Gradle.brain [jpackage].executor": "Run",
-    "Gradle.brain [prepareMergedJarsDir].executor": "Run",
-    "Gradle.brain [prepareModulesDir].executor": "Run",
-    "Gradle.brain [run].executor": "Run",
-    "Gradle.brain [shadowDistTar].executor": "Run",
-    "Gradle.brain [shadowDistZip].executor": "Run",
-    "Gradle.brain [shadowJar].executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SONARLINT_PRECOMMIT_ANALYSIS": "true",
-    "com.codeium.enabled": "true",
-    "git-widget-placeholder": "master",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Artifacts",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.16206896",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;Gradle.brain [:Game.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.brain [:HelloApplication.main()].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.brain [assemble].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.brain [buildDependents].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.brain [buildEnvironment].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.brain [buildNeeded].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.brain [build].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.brain [classes].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.brain [cle].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.brain [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.brain [dependencies].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.brain [dependencyInsight].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.brain [distZip].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.brain [jar].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.brain [jlinkZip].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.brain [jlink].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.brain [jpackageImage].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.brain [jpackage].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.brain [prepareMergedJarsDir].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.brain [prepareModulesDir].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.brain [run].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.brain [shadowDistTar].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.brain [shadowDistZip].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.brain [shadowJar].executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
+    &quot;com.codeium.enabled&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Artifacts&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.16206896&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/main/resources/sounds" />
@@ -137,9 +109,9 @@
       <command value="gradle jlink" />
     </option>
   </component>
-  <component name="RunManager" selected="Application.HelloApplication">
-    <configuration name="HelloApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.nekitvp.brain.HelloApplication" />
+  <component name="RunManager" selected="Application.Game">
+    <configuration name="Game" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.nekitvp.brain.Game" />
       <module name="brain.main" />
       <extension name="coverage">
         <pattern>
@@ -241,9 +213,9 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.HelloApplication" />
         <item itemvalue="Gradle.brain [jpackage]" />
         <item itemvalue="Gradle.brain [clean]" />
+        <item itemvalue="Application.Game" />
         <item itemvalue="Gradle.brain [jpackageImage]" />
         <item itemvalue="Gradle.brain [shadowJar]" />
       </list>
@@ -270,6 +242,12 @@
       <workItem from="1728459720081" duration="3000" />
       <workItem from="1728462832371" duration="12444000" />
       <workItem from="1728496639184" duration="4022000" />
+      <workItem from="1728541906433" duration="5492000" />
+      <workItem from="1728857154434" duration="1463000" />
+      <workItem from="1728891249765" duration="47000" />
+      <workItem from="1731485244125" duration="228000" />
+      <workItem from="1731535577464" duration="5098000" />
+      <workItem from="1731592200363" duration="1490000" />
     </task>
     <task id="LOCAL-00001" summary="add sounds">
       <option name="closed" value="true" />
@@ -287,7 +265,15 @@
       <option name="project" value="LOCAL" />
       <updated>1728498287676</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="add adaptive">
+      <option name="closed" value="true" />
+      <created>1728548571884</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1728548571884</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -308,6 +294,7 @@
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <MESSAGE value="add sounds" />
     <MESSAGE value="fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix" />
+    <MESSAGE value="add adaptive" />
+    <option name="LAST_COMMIT_MESSAGE" value="add adaptive" />
   </component>
 </project>

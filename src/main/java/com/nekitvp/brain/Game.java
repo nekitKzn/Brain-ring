@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
@@ -20,6 +21,15 @@ public class Game extends Application {
 
     private static final long INITIAL_TIME_MS = 20000;
     private static final String INITIAL_TIME_STRING = "20.00";
+    private static final String END_TIME_STRING = "00.00";
+
+    private int redScore = 0;
+    private int greenScore = 0;
+
+    private Label redScoreLabel;
+    private Label greenScoreLabel;
+    private Label redScoreValue;
+    private Label greenScoreValue;
 
     private Label timerLabel;
     private Label resultLabel;
@@ -39,7 +49,10 @@ public class Game extends Application {
     private AnimationTimer timer;
     private Pane root;
 
+    private VBox redVBox;
+    private VBox greenVBox;
     private VBox layout;
+    private HBox scoreLayout;
     private Scene scene;
 
     public static void main(String[] args) {
@@ -80,7 +93,27 @@ public class Game extends Application {
         answerLabel.setMaxWidth(Double.MAX_VALUE);
         answerLabel.setAlignment(Pos.CENTER);
 
-        layout = new VBox(5, answerLabel, resultLabel, timerLabel, logoImageView);
+        redScoreLabel = new Label("КРАСНЫЕ");
+        redScoreLabel.setStyle("-fx-font-family: 'Comic Sans MS'; -fx-font-size: 25px; -fx-text-fill: white;");
+        redScoreValue = new Label("0");
+        redScoreValue.setStyle("-fx-font-family: 'Comic Sans MS'; -fx-font-size: 100px; -fx-text-fill: white;");
+
+        greenScoreLabel = new Label("ЗЕЛЕНЫЕ");
+        greenScoreLabel.setStyle("-fx-font-family: 'Comic Sans MS'; -fx-font-size: 25px; -fx-text-fill: white;");
+        greenScoreValue = new Label("0");
+        greenScoreValue.setStyle("-fx-font-family: 'Comic Sans MS'; -fx-font-size: 100px; -fx-text-fill: white;");
+
+        redVBox = new VBox(redScoreLabel, redScoreValue);
+        redVBox.setAlignment(Pos.CENTER);
+        greenVBox = new VBox(greenScoreLabel, greenScoreValue);
+        greenVBox.setAlignment(Pos.CENTER);
+
+        // Размещаем элементы в горизонтальном контейнере
+        scoreLayout = new HBox(30, redVBox, logoImageView, greenVBox);
+        scoreLayout.setAlignment(Pos.CENTER);
+
+        // Обновляем основной макет
+        layout = new VBox(5, answerLabel, resultLabel, timerLabel, scoreLayout);
         layout.setAlignment(Pos.CENTER);
 
         root = new Pane();
@@ -89,9 +122,10 @@ public class Game extends Application {
 
         scene = getScene();
 
-        scene.heightProperty().addListener((obs, oldVal, newVal) -> resizeElements(scene.getWidth(), newVal.doubleValue()));
+        scene.heightProperty()
+                .addListener((obs, oldVal, newVal) -> resizeElements(scene.getWidth(), newVal.doubleValue()));
 
-        stage.setFullScreen(true);
+        //stage.setFullScreen(true);
 
         stage.setScene(scene);
         stage.setTitle("Brain Ring");
@@ -101,17 +135,32 @@ public class Game extends Application {
     // Метод для изменения размеров элементов
     private void resizeElements(double width, double height) {
         // Пример логики: адаптируем размеры в зависимости от ширины и высоты окна
-        double logoWidth = height * 0.43; // 43% от ширины окна
+        double logoWidth = height * 0.43; // 43% от высоты окна
         logoImageView.setFitWidth(logoWidth);
 
         double timerFontSize = height * 0.38; // 38% от высоты окна для шрифта таймера
-        timerLabel.setStyle("-fx-font-size: " + timerFontSize + "px; -fx-font-family: 'Courier New'; -fx-text-fill: white;");
+        timerLabel.setStyle(
+                "-fx-font-size: " + timerFontSize + "px; -fx-font-family: 'Courier New'; -fx-text-fill: white;");
 
         double resultFontSize = height * 0.086; // 8.6% от высоты окна для шрифта результата
-        resultLabel.setStyle("-fx-font-size: " + resultFontSize + "px; -fx-font-family: 'Comic Sans MS'; -fx-text-fill: white;");
+        resultLabel.setStyle(
+                "-fx-font-size: " + resultFontSize + "px; -fx-font-family: 'Comic Sans MS'; -fx-text-fill: white;");
 
         double answerFontSize = height * 0.048; // 4.8% от высоты окна для шрифта ответа
-        answerLabel.setStyle("-fx-font-size: " + answerFontSize + "px; -fx-font-family: 'Comic Sans MS'; -fx-text-fill: white;");
+        answerLabel.setStyle(
+                "-fx-font-size: " + answerFontSize + "px; -fx-font-family: 'Comic Sans MS'; -fx-text-fill: white;");
+
+        double scoreValueSize = height * 0.1; // 10% от высоты окна для баллов
+        redScoreValue.setStyle(
+                "-fx-font-size: " + scoreValueSize + "px; -fx-font-family: 'Comic Sans MS'; -fx-text-fill: white;");
+        greenScoreValue.setStyle(
+                "-fx-font-size: " + scoreValueSize + "px; -fx-font-family: 'Comic Sans MS'; -fx-text-fill: white;");
+
+        double scoreLabelSize = height * 0.025; // 2.5% от высоты окна для баллов
+        redScoreLabel.setStyle(
+                "-fx-font-size: " + scoreLabelSize + "px; -fx-font-family: 'Comic Sans MS'; -fx-text-fill: white;");
+        greenScoreLabel.setStyle(
+                "-fx-font-size: " + scoreLabelSize + "px; -fx-font-family: 'Comic Sans MS'; -fx-text-fill: white;");
 
         layout.setPrefWidth(width);
         layout.setPrefHeight(height);
@@ -130,11 +179,11 @@ public class Game extends Application {
 
             String key = e.getText().toLowerCase();
 
-           if (isResetKey(key)) { // кнопка ведущего "НОВАЯ ИГРА"
+            if (isResetKey(key)) { // кнопка ведущего "НОВАЯ ИГРА"
                 resetTimer();
                 changeBackgroundColor("black");
 
-            } else if (!timerRunning && !falseStart && isStartKey(key)) { // кнопка ведущего "ЗАПУСТИТЬ"
+            } else if (!timerRunning && !falseStart && !isEndTime() && isStartKey(key)) { // кнопка ведущего "ЗАПУСТИТЬ"
                 play(startSound);
                 startTimer();
                 changeBackgroundColor("black");
@@ -162,13 +211,35 @@ public class Game extends Application {
                 changeBackgroundColor("#ad3333");
                 resultLabel.setText("ФАЛЬСТАРТ КРАСНОЙ КОМАНДЫ");
 
-            } else if (!timerRunning && !falseStart && isInitialTime() && isGreenTeamKey(
-                    key)) { // фальтстарт ЗЕЛЕНОЙ команды
+            } else if (!timerRunning && !falseStart && isInitialTime() && isGreenTeamKey(key)) { // фальтстарт ЗЕЛЕНОЙ
                 play(falseStartSound);
                 falseStart = true;
                 changeBackgroundColor("#4f6b34");
                 resultLabel.setText("ФАЛЬСТАРТ ЗЕЛЕНОЙ КОМАНДЫ");
+
+            } else if (key.equals("1")) { // Уменьшаем баллы красной команды
+                redScore = Math.max(0, redScore - 1);
+                redScoreValue.setText(String.valueOf(redScore));
+
+            } else if (key.equals("4")) { // Увеличиваем баллы красной команды
+                redScore += 1;
+                redScoreValue.setText(String.valueOf(redScore));
+
+            } else if (key.equals("2")) { // Уменьшаем баллы зеленой команды
+                greenScore = Math.max(0, greenScore - 1);
+                greenScoreValue.setText(String.valueOf(greenScore));
+
+            } else if (key.equals("5")) { // Увеличиваем баллы зеленой команды
+                greenScore += 1;
+                greenScoreValue.setText(String.valueOf(greenScore));
+
+            } else if (key.equals("0")) { // Обнуляем баллы обеих команд
+                redScore = 0;
+                greenScore = 0;
+                redScoreValue.setText("0");
+                greenScoreValue.setText("0");
             }
+
         });
 
         return scene;
@@ -240,27 +311,35 @@ public class Game extends Application {
             timer.stop();
         }
 
-        if (team == null) {
+        if (team == null) { // если таймер законончился
             resultLabel.setText("ВРЕМЯ ЗАКОНЧИЛОСЬ");
             answerLabel.setText("");
             changeBackgroundColor("red"); // Красим экран в красный цвет
+            timerLabel.setText(END_TIME_STRING);
             play(endSound);
         }
     }
 
     private void changeBackgroundColor(String color) {
         root.setStyle("-fx-background-color: " + color + ";");
+        scoreLayout.setStyle("-fx-background-color: " + color + ";");
+        redVBox.setStyle("-fx-background-color: " + color + ";");
+        greenVBox.setStyle("-fx-background-color: " + color + ";");
     }
 
     private boolean isInitialTime() {
         return INITIAL_TIME_STRING.equals(timerLabel.getText());
     }
 
+    private boolean isEndTime() {
+        return END_TIME_STRING.equals(timerLabel.getText());
+    }
+
     private void checkFirstSecond() {
         long elapsed = System.currentTimeMillis() - startTime;
         long remaining = INITIAL_TIME_MS - elapsed;
 
-        if (remaining <= INITIAL_TIME_MS && remaining > (INITIAL_TIME_MS - 1000)) {
+        if (remaining < INITIAL_TIME_MS && remaining >= (INITIAL_TIME_MS - 1010)) {
             resultLabel.setText("ОТВЕТ НА ПЕРВОЙ СЕКУНДЕ!");
         }
     }

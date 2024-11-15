@@ -1,5 +1,6 @@
 package com.nekitvp.brain;
 
+import java.util.Map;
 import java.util.Objects;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -8,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -30,16 +32,13 @@ public class Game extends Application {
     private Label greenScoreLabel;
     private Label redScoreValue;
     private Label greenScoreValue;
-
     private Label timerLabel;
     private Label resultLabel;
     private Label answerLabel;
-
     private MediaPlayer endSound;
     private MediaPlayer falseStartSound;
     private MediaPlayer startSound;
     private MediaPlayer answerSound;
-
     private ImageView logoImageView;
 
     private long startTime;
@@ -59,49 +58,36 @@ public class Game extends Application {
         launch(args);
     }
 
+    private final Map<KeyCode, Runnable> keyActions = Map.of(
+            KeyCode.C, this::startKey,
+            KeyCode.N, this::newGameKey,
+            KeyCode.R, () -> teamAction("КРАСНАЯ", "#ad3333"),
+            KeyCode.G, () -> teamAction("ЗЕЛЕНАЯ", "#4f6b34"),
+            KeyCode.DIGIT1, () -> updateScore("RED", -1),
+            KeyCode.DIGIT4, () -> updateScore("RED", 1),
+            KeyCode.DIGIT2, () -> updateScore("GREEN", -1),
+            KeyCode.DIGIT5, () -> updateScore("GREEN", 1),
+            KeyCode.DIGIT0, this::resetScores
+    );
+
     @Override
     public void start(Stage stage) {
 
-        // Загружаем звуки
-        startSound = new MediaPlayer(
-                new Media(Objects.requireNonNull(getClass().getResource("/sounds/start.wav")).toString()));
-        endSound = new MediaPlayer(
-                new Media(Objects.requireNonNull(getClass().getResource("/sounds/endTime.wav")).toString()));
-        answerSound = new MediaPlayer(
-                new Media(Objects.requireNonNull(getClass().getResource("/sounds/answer.wav")).toString()));
-        falseStartSound = new MediaPlayer(
-                new Media(Objects.requireNonNull(getClass().getResource("/sounds/falseStart.wav")).toString()));
+        startSound = loadSound("/sounds/start.wav");
+        endSound = loadSound("/sounds/endTime.wav");
+        answerSound = loadSound("/sounds/answer.wav");
+        falseStartSound = loadSound("/sounds/falseStart.wav");
 
-        Image logoImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/logo.png")));
-        logoImageView = new ImageView(logoImage);
-        logoImageView.setFitWidth(450);
-        logoImageView.setPreserveRatio(true);
-        logoImageView.setStyle("-fx-effect: dropshadow(gaussian, white, 100, 0.8, 0, 0);");
+        logoImageView = createImageView("/logo.png", 450);
 
-        timerLabel = new Label(INITIAL_TIME_STRING);
-        timerLabel.setStyle("-fx-font-size: 400px; -fx-font-family: 'Courier New'; -fx-text-fill: white;");
-        timerLabel.setMaxWidth(Double.MAX_VALUE);
-        timerLabel.setAlignment(Pos.CENTER);
+        timerLabel = createLabel(INITIAL_TIME_STRING, "400px", "Courier New");
+        resultLabel = createLabel("", "90px", "Comic Sans MS");
+        answerLabel = createLabel("", "50px", "Comic Sans MS");
 
-        resultLabel = new Label("");
-        resultLabel.setStyle("-fx-font-family: 'Comic Sans MS'; -fx-font-size: 90px; -fx-text-fill: white;");
-        resultLabel.setMaxWidth(Double.MAX_VALUE);
-        resultLabel.setAlignment(Pos.CENTER);
-
-        answerLabel = new Label("");
-        answerLabel.setStyle("-fx-font-family: 'Comic Sans MS'; -fx-font-size: 50px; -fx-text-fill: white;");
-        answerLabel.setMaxWidth(Double.MAX_VALUE);
-        answerLabel.setAlignment(Pos.CENTER);
-
-        redScoreLabel = new Label("КРАСНЫЕ");
-        redScoreLabel.setStyle("-fx-font-family: 'Comic Sans MS'; -fx-font-size: 25px; -fx-text-fill: white;");
-        redScoreValue = new Label("0");
-        redScoreValue.setStyle("-fx-font-family: 'Comic Sans MS'; -fx-font-size: 100px; -fx-text-fill: white;");
-
-        greenScoreLabel = new Label("ЗЕЛЕНЫЕ");
-        greenScoreLabel.setStyle("-fx-font-family: 'Comic Sans MS'; -fx-font-size: 25px; -fx-text-fill: white;");
-        greenScoreValue = new Label("0");
-        greenScoreValue.setStyle("-fx-font-family: 'Comic Sans MS'; -fx-font-size: 100px; -fx-text-fill: white;");
+        redScoreLabel = createLabel("КРАСНЫЕ", "25px", "Comic Sans MS");
+        redScoreValue = createLabel("0", "100px", "Comic Sans MS");
+        greenScoreLabel = createLabel("ЗЕЛЕНЫЕ", "25px", "Comic Sans MS");
+        greenScoreValue = createLabel("0", "100px", "Comic Sans MS");
 
         redVBox = new VBox(redScoreLabel, redScoreValue);
         redVBox.setAlignment(Pos.CENTER);
@@ -120,51 +106,56 @@ public class Game extends Application {
         root.setStyle("-fx-background-color: black;");
         root.getChildren().add(layout);
 
-        scene = getScene();
 
-        scene.heightProperty()
-                .addListener((obs, oldVal, newVal) -> resizeElements(scene.getWidth(), newVal.doubleValue()));
 
         //stage.setFullScreen(true);
 
+        scene = new Scene(root);
+        scene.heightProperty()
+                .addListener((obs, oldVal, newVal) -> resizeElements(scene.getWidth(), newVal.doubleValue()));
+        scene.setOnKeyPressed(event -> keyActions.getOrDefault(event.getCode(), () -> {}).run());
         stage.setScene(scene);
         stage.setTitle("Brain Ring");
         stage.show();
     }
 
-    // Метод для изменения размеров элементов
+    private ImageView createImageView(String path, double fitWidth) {
+        Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(path)));
+        ImageView imageView = new ImageView(image);
+        imageView.setFitWidth(fitWidth);
+        imageView.setPreserveRatio(true);
+        imageView.setStyle("-fx-effect: dropshadow(gaussian, white, 100, 0.8, 0, 0);");
+        return imageView;
+    }
+
+    private Label createLabel(String text, String fontSize, String fontFamily) {
+        Label label = new Label(text);
+        label.setStyle(String.format("-fx-font-size: %s; -fx-font-family: '%s'; -fx-text-fill: white;", fontSize, fontFamily));
+        label.setMaxWidth(Double.MAX_VALUE);
+        label.setAlignment(Pos.CENTER);
+        return label;
+    }
+
+    private MediaPlayer loadSound(String path) {
+        return new MediaPlayer(new Media(Objects.requireNonNull(getClass().getResource(path)).toString()));
+    }
+
     private void resizeElements(double width, double height) {
-        // Пример логики: адаптируем размеры в зависимости от ширины и высоты окна
-        double logoWidth = height * 0.43; // 43% от высоты окна
-        logoImageView.setFitWidth(logoWidth);
+        logoImageView.setFitWidth(height * 0.43);
 
-        double timerFontSize = height * 0.38; // 38% от высоты окна для шрифта таймера
-        timerLabel.setStyle(
-                "-fx-font-size: " + timerFontSize + "px; -fx-font-family: 'Courier New'; -fx-text-fill: white;");
+        setFontSize(timerLabel, height * 0.38);
+        setFontSize(resultLabel, height * 0.086);
+        setFontSize(answerLabel, height * 0.048);
+        setFontSize(redScoreValue, height * 0.1);
+        setFontSize(greenScoreValue, height * 0.1);
+        setFontSize(redScoreLabel, height * 0.025);
+        setFontSize(greenScoreLabel, height * 0.025);
 
-        double resultFontSize = height * 0.086; // 8.6% от высоты окна для шрифта результата
-        resultLabel.setStyle(
-                "-fx-font-size: " + resultFontSize + "px; -fx-font-family: 'Comic Sans MS'; -fx-text-fill: white;");
+        layout.setPrefSize(width, height);
+    }
 
-        double answerFontSize = height * 0.048; // 4.8% от высоты окна для шрифта ответа
-        answerLabel.setStyle(
-                "-fx-font-size: " + answerFontSize + "px; -fx-font-family: 'Comic Sans MS'; -fx-text-fill: white;");
-
-        double scoreValueSize = height * 0.1; // 10% от высоты окна для баллов
-        redScoreValue.setStyle(
-                "-fx-font-size: " + scoreValueSize + "px; -fx-font-family: 'Comic Sans MS'; -fx-text-fill: white;");
-        greenScoreValue.setStyle(
-                "-fx-font-size: " + scoreValueSize + "px; -fx-font-family: 'Comic Sans MS'; -fx-text-fill: white;");
-
-        double scoreLabelSize = height * 0.025; // 2.5% от высоты окна для баллов
-        redScoreLabel.setStyle(
-                "-fx-font-size: " + scoreLabelSize + "px; -fx-font-family: 'Comic Sans MS'; -fx-text-fill: white;");
-        greenScoreLabel.setStyle(
-                "-fx-font-size: " + scoreLabelSize + "px; -fx-font-family: 'Comic Sans MS'; -fx-text-fill: white;");
-
-        layout.setPrefWidth(width);
-        layout.setPrefHeight(height);
-        layout.setAlignment(Pos.CENTER);
+    private void setFontSize(Label label, double size) {
+        label.setStyle(label.getStyle().replaceFirst("-fx-font-size: \\d+px", "-fx-font-size: " + size + "px"));
     }
 
     private void play(MediaPlayer player) {
@@ -173,92 +164,50 @@ public class Game extends Application {
         player.play();
     }
 
-    private Scene getScene() {
-        scene = new Scene(root);
-        scene.setOnKeyPressed(e -> {
-
-            String key = e.getText().toLowerCase();
-
-            if (isResetKey(key)) { // кнопка ведущего "НОВАЯ ИГРА"
-                resetTimer();
-                changeBackgroundColor("black");
-
-            } else if (!timerRunning && !falseStart && !isEndTime() && isStartKey(key)) { // кнопка ведущего "ЗАПУСТИТЬ"
-                play(startSound);
-                startTimer();
-                changeBackgroundColor("black");
-                resultLabel.setText("");
-                answerLabel.setText("");
-
-            } else if (timerRunning && isRedTeamKey(key)) { // кнопка КРАСНОЙ команды
-                play(answerSound);
-                stopTimer("КРАСНАЯ команда");
-                changeBackgroundColor("#ad3333");
-                checkFirstSecond();
-                answerLabel.setText("Отвечает КРАСНАЯ команда");
-
-            } else if (timerRunning && isGreenTeamKey(key)) { // кнопка ЗЕЛЕНОЙ команды
-                play(answerSound);
-                stopTimer("ЗЕЛЕНАЯ команда");
-                changeBackgroundColor("#4f6b34");
-                checkFirstSecond();
-                answerLabel.setText("Отвечает ЗЕЛЕНАЯ команда");
-
-            } else if (!timerRunning && !falseStart && isInitialTime() && isRedTeamKey(
-                    key)) { // фальтстарт КРАСНОЙ команды
-                play(falseStartSound);
-                falseStart = true;
-                changeBackgroundColor("#ad3333");
-                resultLabel.setText("ФАЛЬСТАРТ КРАСНОЙ КОМАНДЫ");
-
-            } else if (!timerRunning && !falseStart && isInitialTime() && isGreenTeamKey(key)) { // фальтстарт ЗЕЛЕНОЙ
-                play(falseStartSound);
-                falseStart = true;
-                changeBackgroundColor("#4f6b34");
-                resultLabel.setText("ФАЛЬСТАРТ ЗЕЛЕНОЙ КОМАНДЫ");
-
-            } else if (key.equals("1")) { // Уменьшаем баллы красной команды
-                redScore = Math.max(0, redScore - 1);
-                redScoreValue.setText(String.valueOf(redScore));
-
-            } else if (key.equals("4")) { // Увеличиваем баллы красной команды
-                redScore += 1;
-                redScoreValue.setText(String.valueOf(redScore));
-
-            } else if (key.equals("2")) { // Уменьшаем баллы зеленой команды
-                greenScore = Math.max(0, greenScore - 1);
-                greenScoreValue.setText(String.valueOf(greenScore));
-
-            } else if (key.equals("5")) { // Увеличиваем баллы зеленой команды
-                greenScore += 1;
-                greenScoreValue.setText(String.valueOf(greenScore));
-
-            } else if (key.equals("0")) { // Обнуляем баллы обеих команд
-                redScore = 0;
-                greenScore = 0;
-                redScoreValue.setText("0");
-                greenScoreValue.setText("0");
-            }
-
-        });
-
-        return scene;
+    private void startKey() {
+        if (!timerRunning && !falseStart && !isEndTime()) {
+            play(startSound);
+            startTimer();
+            changeBackgroundColor("black");
+            resultLabel.setText("");
+            answerLabel.setText("");
+        }
     }
 
-    private boolean isStartKey(String key) {
-        return (key.equals("c") || key.equals("с"));
+    private void newGameKey() {
+        resetTimer();
+        changeBackgroundColor("black");
     }
 
-    private boolean isResetKey(String key) {
-        return key.equals("n") || key.equals("т");
+    private void resetScores() {
+        redScore = greenScore = 0;
+        redScoreValue.setText("0");
+        greenScoreValue.setText("0");
     }
 
-    private boolean isGreenTeamKey(String key) {
-        return key.equals("g") || key.equals("п");
+    private void teamAction(String team, String color) {
+        if (timerRunning) {
+            play(answerSound);
+            stopTimer(team + " команда");
+            changeBackgroundColor(color);
+            answerLabel.setText("Отвечает " + team + " команда");
+            checkFirstSecond();
+        } else if (!falseStart && isInitialTime()) {
+            play(falseStartSound);
+            falseStart = true;
+            changeBackgroundColor(color);
+            resultLabel.setText("ФАЛЬСТАРТ " + team + " КОМАНДЫ");
+        }
     }
 
-    private boolean isRedTeamKey(String key) {
-        return key.equals("r") || key.equals("к");
+    private void updateScore(String team, int delta) {
+        if ("RED".equals(team)) {
+            redScore = Math.max(0, redScore + delta);
+            redScoreValue.setText(String.valueOf(redScore));
+        } else if ("GREEN".equals(team)) {
+            greenScore = Math.max(0, greenScore + delta);
+            greenScoreValue.setText(String.valueOf(greenScore));
+        }
     }
 
     private void resetTimer() {

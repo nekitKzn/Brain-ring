@@ -24,6 +24,8 @@ public class Game extends Application {
     private static final long INITIAL_TIME_MS = 20000;
     private static final String INITIAL_TIME_STRING = "20.00";
     private static final String END_TIME_STRING = "00.00";
+    private static final String COMIC_SANS_FONT = "Comic Sans MS";
+    private static final String COURIER_NEW_FONT = "Courier New";
 
     private int redScore = 0;
     private int greenScore = 0;
@@ -53,20 +55,22 @@ public class Game extends Application {
     private VBox layout;
     private HBox scoreLayout;
     private Scene scene;
+    private Stage mainStage;
 
     public static void main(String[] args) {
         launch(args);
     }
 
     private final Map<KeyCode, Runnable> keyActions = Map.of(
+            KeyCode.S, () -> mainStage.setFullScreen(true),
             KeyCode.C, this::startKey,
             KeyCode.N, this::newGameKey,
-            KeyCode.R, () -> teamAction("КРАСНАЯ", "#ad3333"),
-            KeyCode.G, () -> teamAction("ЗЕЛЕНАЯ", "#4f6b34"),
-            KeyCode.DIGIT1, () -> updateScore("RED", -1),
-            KeyCode.DIGIT4, () -> updateScore("RED", 1),
-            KeyCode.DIGIT2, () -> updateScore("GREEN", -1),
-            KeyCode.DIGIT5, () -> updateScore("GREEN", 1),
+            KeyCode.R, () -> teamAction(Team.RED),
+            KeyCode.G, () -> teamAction(Team.GREEN),
+            KeyCode.DIGIT1, () -> updateScore(Team.RED, -1),
+            KeyCode.DIGIT4, () -> updateScore(Team.RED, 1),
+            KeyCode.DIGIT2, () -> updateScore(Team.GREEN, -1),
+            KeyCode.DIGIT5, () -> updateScore(Team.GREEN, 1),
             KeyCode.DIGIT0, this::resetScores
     );
 
@@ -78,16 +82,18 @@ public class Game extends Application {
         answerSound = loadSound("/sounds/answer.wav");
         falseStartSound = loadSound("/sounds/falseStart.wav");
 
-        logoImageView = createImageView("/logo.png", 450);
+        logoImageView = createImageView();
 
-        timerLabel = createLabel(INITIAL_TIME_STRING, "400px", "Courier New");
-        resultLabel = createLabel("", "90px", "Comic Sans MS");
-        answerLabel = createLabel("", "50px", "Comic Sans MS");
+        timerLabel = createLabel(INITIAL_TIME_STRING, 200, COURIER_NEW_FONT);
+        resultLabel = createLabel("", 45, COMIC_SANS_FONT);
+        answerLabel = createLabel("", 25, COMIC_SANS_FONT);
 
-        redScoreLabel = createLabel("КРАСНЫЕ", "25px", "Comic Sans MS");
-        redScoreValue = createLabel("0", "100px", "Comic Sans MS");
-        greenScoreLabel = createLabel("ЗЕЛЕНЫЕ", "25px", "Comic Sans MS");
-        greenScoreValue = createLabel("0", "100px", "Comic Sans MS");
+        redScoreLabel = createLabel("КРАСНЫЕ", 13, COMIC_SANS_FONT);
+        redScoreValue = createLabel("0", 50, COMIC_SANS_FONT);
+        greenScoreLabel = createLabel("ЗЕЛЕНЫЕ", 13, COMIC_SANS_FONT);
+        greenScoreValue = createLabel("0", 50, COMIC_SANS_FONT);
+
+
 
         redVBox = new VBox(redScoreLabel, redScoreValue);
         redVBox.setAlignment(Pos.CENTER);
@@ -101,16 +107,15 @@ public class Game extends Application {
         // Обновляем основной макет
         layout = new VBox(5, answerLabel, resultLabel, timerLabel, scoreLayout);
         layout.setAlignment(Pos.CENTER);
+        layout.setPrefSize(800, 526);
 
         root = new Pane();
         root.setStyle("-fx-background-color: black;");
         root.getChildren().add(layout);
+        scene = new Scene(root, 800, 526);
 
+        mainStage = stage;
 
-
-        //stage.setFullScreen(true);
-
-        scene = new Scene(root);
         scene.heightProperty()
                 .addListener((obs, oldVal, newVal) -> resizeElements(scene.getWidth(), newVal.doubleValue()));
         scene.setOnKeyPressed(event -> keyActions.getOrDefault(event.getCode(), () -> {}).run());
@@ -119,18 +124,18 @@ public class Game extends Application {
         stage.show();
     }
 
-    private ImageView createImageView(String path, double fitWidth) {
-        Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(path)));
+    private ImageView createImageView() {
+        Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/logo.png")));
         ImageView imageView = new ImageView(image);
-        imageView.setFitWidth(fitWidth);
+        imageView.setFitWidth(225);
         imageView.setPreserveRatio(true);
-        imageView.setStyle("-fx-effect: dropshadow(gaussian, white, 100, 0.8, 0, 0);");
+        imageView.setStyle("-fx-effect: dropshadow(gaussian, white, 100, 0.8, -1, 0);");
         return imageView;
     }
 
-    private Label createLabel(String text, String fontSize, String fontFamily) {
+    private Label createLabel(String text, Integer fontSize, String fontFamily) {
         Label label = new Label(text);
-        label.setStyle(String.format("-fx-font-size: %s; -fx-font-family: '%s'; -fx-text-fill: white;", fontSize, fontFamily));
+        setFontSize(label, fontFamily, fontSize);
         label.setMaxWidth(Double.MAX_VALUE);
         label.setAlignment(Pos.CENTER);
         return label;
@@ -143,19 +148,19 @@ public class Game extends Application {
     private void resizeElements(double width, double height) {
         logoImageView.setFitWidth(height * 0.43);
 
-        setFontSize(timerLabel, height * 0.38);
-        setFontSize(resultLabel, height * 0.086);
-        setFontSize(answerLabel, height * 0.048);
-        setFontSize(redScoreValue, height * 0.1);
-        setFontSize(greenScoreValue, height * 0.1);
-        setFontSize(redScoreLabel, height * 0.025);
-        setFontSize(greenScoreLabel, height * 0.025);
+        setFontSize(timerLabel, COURIER_NEW_FONT, height * 0.38);
+        setFontSize(resultLabel, COMIC_SANS_FONT, height * 0.086);
+        setFontSize(answerLabel, COMIC_SANS_FONT, height * 0.048);
+        setFontSize(redScoreValue, COMIC_SANS_FONT, height * 0.1);
+        setFontSize(greenScoreValue, COMIC_SANS_FONT, height * 0.1);
+        setFontSize(redScoreLabel, COMIC_SANS_FONT, height * 0.025);
+        setFontSize(greenScoreLabel, COMIC_SANS_FONT, height * 0.025);
 
         layout.setPrefSize(width, height);
     }
 
-    private void setFontSize(Label label, double size) {
-        label.setStyle(label.getStyle().replaceFirst("-fx-font-size: \\d+px", "-fx-font-size: " + size + "px"));
+    private void setFontSize(Label label, String font, double size) {
+        label.setStyle(String.format("-fx-font-size: %s; -fx-font-family: '%s'; -fx-text-fill: white;", size, font));
     }
 
     private void play(MediaPlayer player) {
@@ -185,26 +190,26 @@ public class Game extends Application {
         greenScoreValue.setText("0");
     }
 
-    private void teamAction(String team, String color) {
+    private void teamAction(Team team) {
         if (timerRunning) {
             play(answerSound);
-            stopTimer(team + " команда");
-            changeBackgroundColor(color);
-            answerLabel.setText("Отвечает " + team + " команда");
+            stopTimer(true);
+            changeBackgroundColor(team.getColor());
+            answerLabel.setText("Отвечает " + team.getTextForAnswer() + " команда");
             checkFirstSecond();
         } else if (!falseStart && isInitialTime()) {
             play(falseStartSound);
             falseStart = true;
-            changeBackgroundColor(color);
-            resultLabel.setText("ФАЛЬСТАРТ " + team + " КОМАНДЫ");
+            changeBackgroundColor(team.getColor());
+            resultLabel.setText("ФАЛЬСТАРТ " + team.getTextForFail() + " КОМАНДЫ");
         }
     }
 
-    private void updateScore(String team, int delta) {
-        if ("RED".equals(team)) {
+    private void updateScore(Team team, int delta) {
+        if (Team.RED.equals(team)) {
             redScore = Math.max(0, redScore + delta);
             redScoreValue.setText(String.valueOf(redScore));
-        } else if ("GREEN".equals(team)) {
+        } else if (Team.GREEN.equals(team)) {
             greenScore = Math.max(0, greenScore + delta);
             greenScoreValue.setText(String.valueOf(greenScore));
         }
@@ -244,7 +249,7 @@ public class Game extends Application {
                     long milliseconds = remaining % 1000;
                     timerLabel.setText(String.format("%02d.%02d", seconds, milliseconds / 10));
                 } else {
-                    stopTimer(null);
+                    stopTimer(false);
                 }
             }
         };
@@ -252,7 +257,7 @@ public class Game extends Application {
     }
 
     // Метод для остановки таймера
-    private void stopTimer(String team) {
+    private void stopTimer(Boolean isTeam) {
         timerRunning = false;
         elapsedPauseTime = System.currentTimeMillis() - startTime; // Запоминаем, сколько прошло времени
 
@@ -260,10 +265,10 @@ public class Game extends Application {
             timer.stop();
         }
 
-        if (team == null) { // если таймер законончился
+        if (Boolean.FALSE.equals(isTeam)) { // если таймер законончился
             resultLabel.setText("ВРЕМЯ ЗАКОНЧИЛОСЬ");
             answerLabel.setText("");
-            changeBackgroundColor("red"); // Красим экран в красный цвет
+            changeBackgroundColor("#486fb6");
             timerLabel.setText(END_TIME_STRING);
             play(endSound);
         }

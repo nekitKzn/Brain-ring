@@ -30,7 +30,14 @@ public class Game extends Application {
 
     private int redScore = 0;
     private int greenScore = 0;
+    private int penaltyScore = 0;
 
+    private double volumeLevel = 0.5; // Начальный уровень громкости от 0.0 до 1.0
+
+
+    private Label penaltyScoreLabel;
+    private Label penaltyLabel;
+    private Label x2Label;
     private Label redScoreLabel;
     private Label greenScoreLabel;
     private Label redScoreValue;
@@ -38,10 +45,19 @@ public class Game extends Application {
     private Label timerLabel;
     private Label resultLabel;
     private Label answerLabel;
+    private MediaPlayer[] ALL_PLAYERS;
+
     private MediaPlayer endSound;
     private MediaPlayer falseStartSound;
     private MediaPlayer startSound;
     private MediaPlayer answerSound;
+    private MediaPlayer winSound;
+    private MediaPlayer good1Sound;
+    private MediaPlayer good2Sound;
+    private MediaPlayer good3Sound;
+    private MediaPlayer bad1Sound;
+    private MediaPlayer bad3Sound;
+    private MediaPlayer clockSound;
     private ImageView logoImageView;
 
     private long startTime;
@@ -52,8 +68,11 @@ public class Game extends Application {
     private Pane root;
 
     private VBox redVBox;
+    private HBox redSide;
+    private HBox greenSide;
     private VBox greenVBox;
     private VBox layout;
+    private VBox penaltyVBox;
     private HBox scoreLayout;
     private Scene scene;
     private Stage mainStage;
@@ -65,10 +84,9 @@ public class Game extends Application {
     private final Map<KeyCode, Runnable> keyActions = createCombinedMap();
 
     private Map<KeyCode, Runnable> createCombinedMap() {
-        // Создаём изменяемую карту
+
         Map<KeyCode, Runnable> combinedMap = new HashMap<>();
 
-        // Добавляем элементы из первой карты
         combinedMap.putAll(Map.of(
                 KeyCode.S, () -> mainStage.setFullScreen(true),
                 KeyCode.C, this::startKey,
@@ -82,20 +100,47 @@ public class Game extends Application {
                 KeyCode.DIGIT0, this::resetScores
         ));
 
-        // Добавляем обработку цифровой клавиатуры
         combinedMap.putAll(Map.of(
                 KeyCode.NUMPAD0, this::resetScores,
                 KeyCode.NUMPAD1, () -> updateScore(Team.RED, -1),
                 KeyCode.NUMPAD4, () -> updateScore(Team.RED, 1),
                 KeyCode.NUMPAD2, () -> updateScore(Team.GREEN, -1),
-                KeyCode.NUMPAD5, () -> updateScore(Team.GREEN, 1)
-        ));
+                KeyCode.NUMPAD5, () -> updateScore(Team.GREEN, 1),
+                KeyCode.NUMPAD6, () -> play(endSound),
+                KeyCode.NUMPAD7, () -> play(good1Sound),
+                KeyCode.NUMPAD8, () -> play(good2Sound),
+                KeyCode.NUMPAD9, () -> play(bad1Sound),
+                KeyCode.DIVIDE, () -> play(good3Sound)
+                ));
 
         combinedMap.putAll(Map.of(
-                KeyCode.BACK_SPACE, () -> updateScore(Team.GREEN, 1)
+                KeyCode.BACK_SPACE, () -> play(winSound),
+                KeyCode.ENTER, this::toggleDoublePoints,
+                KeyCode.NUMPAD3, () -> updatePenaltyScore(1),
+                KeyCode.DECIMAL, () -> updatePenaltyScore(-1),
+                KeyCode.MULTIPLY, () -> play(bad3Sound),
+                KeyCode.ADD, this::increaseVolume, // Увеличить громкость
+                KeyCode.SUBTRACT, this::decreaseVolume // Уменьшить громкость
+
         ));
 
         return combinedMap;
+    }
+
+    private void increaseVolume() {
+        volumeLevel = Math.min(1.0, volumeLevel + 0.1); // Максимальная громкость 1.0
+        updateVolume();
+    }
+
+    private void decreaseVolume() {
+        volumeLevel = Math.max(0.0, volumeLevel - 0.1); // Минимальная громкость 0.0
+        updateVolume();
+    }
+
+    private void updateVolume() {
+        for (MediaPlayer player : ALL_PLAYERS) {
+            player.setVolume(volumeLevel);
+        }
     }
 
     @Override
@@ -105,8 +150,20 @@ public class Game extends Application {
         endSound = loadSound("/sounds/endTime.wav");
         answerSound = loadSound("/sounds/answer.wav");
         falseStartSound = loadSound("/sounds/falseStart.wav");
+        winSound = loadSound("/sounds/pobeda.wav");
+        good1Sound = loadSound("/sounds/onen_good.wav");
+        good2Sound = loadSound("/sounds/fanfaryi.wav");
+        good3Sound = loadSound("/sounds/good3.wav");
+        bad1Sound = loadSound("/sounds/ee.wav");
+        bad3Sound = loadSound("/sounds/bad3.wav");
+        clockSound = loadSound("/sounds/clock.wav");
 
-        logoImageView = createImageView();
+        ALL_PLAYERS = new MediaPlayer[]{
+                startSound, endSound, answerSound, falseStartSound, winSound,
+                good1Sound, good2Sound, good3Sound, bad1Sound, bad3Sound, clockSound
+        };
+
+        logoImageView = createImageView("/logo.png", 225);
 
         timerLabel = createLabel(INITIAL_TIME_STRING, 200, COURIER_NEW_FONT);
         resultLabel = createLabel("", 45, COMIC_SANS_FONT);
@@ -117,15 +174,31 @@ public class Game extends Application {
         greenScoreLabel = createLabel("ЗЕЛЕНЫЕ", 13, COMIC_SANS_FONT);
         greenScoreValue = createLabel("0", 50, COMIC_SANS_FONT);
 
+        penaltyLabel = createLabel("ШТРАФНЫЕ\n   БАЛЛЫ", 18, COMIC_SANS_FONT);
+        penaltyLabel.setVisible(false); // Скрыт по умолчанию
+        penaltyScoreLabel = createBackgroundLabel("0", 100, 100, 100, COMIC_SANS_FONT); // Белый круг
+        penaltyScoreLabel.setVisible(false); // Скрыт по умолчанию
 
+        x2Label = createBackgroundLabel("Двойные\n  баллы", 50, 130, 130, COMIC_SANS_FONT);
+        x2Label.setVisible(false);
+
+        penaltyVBox = new VBox(penaltyLabel, penaltyScoreLabel);
+        penaltyVBox.setAlignment(Pos.CENTER);
+        penaltyVBox.setVisible(false); // Контейнер скрыт по умолчанию
 
         redVBox = new VBox(redScoreLabel, redScoreValue);
         redVBox.setAlignment(Pos.CENTER);
+
+        redSide = new HBox(90, penaltyVBox, redVBox);
+        redSide.setAlignment(Pos.CENTER_LEFT);
+
         greenVBox = new VBox(greenScoreLabel, greenScoreValue);
         greenVBox.setAlignment(Pos.CENTER);
 
+        greenSide = new HBox(50, greenVBox, x2Label);
+
         // Размещаем элементы в горизонтальном контейнере
-        scoreLayout = new HBox(30, redVBox, logoImageView, greenVBox);
+        scoreLayout = new HBox(30, redSide, logoImageView, greenSide);
         scoreLayout.setAlignment(Pos.CENTER);
 
         // Обновляем основной макет
@@ -148,10 +221,29 @@ public class Game extends Application {
         stage.show();
     }
 
-    private ImageView createImageView() {
-        Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/logo.png")));
+    private Label createBackgroundLabel(String text, Integer size, Integer w, Integer h,  String fontFamily) {
+        Label label = new Label(text);
+        setStyleCircle(label, fontFamily, Double.valueOf(size), Double.valueOf(w), Double.valueOf(h));
+        return label;
+    }
+
+    private static void setStyleCircle(Label label, String fontFamily, Double size, Double w, Double h) {
+
+        label.setPrefSize(w, h);
+
+
+        label.setStyle("-fx-text-fill: rgb(0,0,0); "
+                + "-fx-background-color: #fff860; "
+                + "-fx-background-radius: 20%; "
+                + "-fx-font-family: '" + fontFamily + "'; "
+                + "-fx-font-size: " + (size / 2) + "px; "
+                + "-fx-alignment: center;");
+    }
+
+    private ImageView createImageView(String path, Integer size) {
+        Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(path)));
         ImageView imageView = new ImageView(image);
-        imageView.setFitWidth(225);
+        imageView.setFitWidth(size);
         imageView.setPreserveRatio(true);
         imageView.setStyle("-fx-effect: dropshadow(gaussian, white, 100, 0.8, -1, 0);");
         return imageView;
@@ -179,6 +271,9 @@ public class Game extends Application {
         setFontSize(greenScoreValue, COMIC_SANS_FONT, height * 0.1);
         setFontSize(redScoreLabel, COMIC_SANS_FONT, height * 0.025);
         setFontSize(greenScoreLabel, COMIC_SANS_FONT, height * 0.025);
+        setFontSize(penaltyLabel, COMIC_SANS_FONT, height * 0.034);
+        setStyleCircle(penaltyScoreLabel, COMIC_SANS_FONT, height * 0.19, height * 0.19, height * 0.19);
+        setStyleCircle(x2Label, COMIC_SANS_FONT, height * 0.1, height * 0.25, height * 0.25);
 
         layout.setPrefSize(width, height);
     }
@@ -191,6 +286,10 @@ public class Game extends Application {
         player.stop();
         player.seek(Duration.ZERO);
         player.play();
+    }
+
+    private void stop(MediaPlayer player) {
+        player.stop();
     }
 
     private void startKey() {
@@ -208,10 +307,17 @@ public class Game extends Application {
         changeBackgroundColor("black");
     }
 
+    private void toggleDoublePoints() {
+        boolean isVisible = x2Label.isVisible();
+        x2Label.setVisible(!isVisible);
+    }
+
     private void resetScores() {
         redScore = greenScore = 0;
         redScoreValue.setText("0");
         greenScoreValue.setText("0");
+        x2Label.setVisible(false);
+        updatePenaltyScore(-penaltyScore);
     }
 
     private void teamAction(Team team) {
@@ -229,6 +335,20 @@ public class Game extends Application {
         }
     }
 
+    private void updatePenaltyScore(int delta) {
+        penaltyScore = Math.max(0, penaltyScore + delta); // Обновляем счет
+        if (penaltyScore > 0) {
+            penaltyVBox.setVisible(true);
+            penaltyLabel.setVisible(true);
+            penaltyScoreLabel.setVisible(true);
+            penaltyScoreLabel.setText(String.valueOf(penaltyScore));
+        } else {
+            penaltyVBox.setVisible(false);
+            penaltyLabel.setVisible(false);
+            penaltyScoreLabel.setVisible(false);
+        }
+    }
+
     private void updateScore(Team team, int delta) {
         if (Team.RED.equals(team)) {
             redScore = Math.max(0, redScore + delta);
@@ -240,6 +360,7 @@ public class Game extends Application {
     }
 
     private void resetTimer() {
+        stop(clockSound);
         startTime = 0;
         elapsedPauseTime = 0;
         timerLabel.setText(INITIAL_TIME_STRING);
@@ -253,6 +374,7 @@ public class Game extends Application {
     }
 
     private void startTimer() {
+        play(clockSound);
         if (startTime == 0) {
             startTime = System.currentTimeMillis();
         } else {
@@ -282,6 +404,7 @@ public class Game extends Application {
 
     // Метод для остановки таймера
     private void stopTimer(Boolean isTeam) {
+        stop(clockSound);
         timerRunning = false;
         elapsedPauseTime = System.currentTimeMillis() - startTime; // Запоминаем, сколько прошло времени
 

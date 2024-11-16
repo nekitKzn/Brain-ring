@@ -1,5 +1,6 @@
 package com.nekitvp.brain;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import javafx.animation.AnimationTimer;
@@ -61,18 +62,41 @@ public class Game extends Application {
         launch(args);
     }
 
-    private final Map<KeyCode, Runnable> keyActions = Map.of(
-            KeyCode.S, () -> mainStage.setFullScreen(true),
-            KeyCode.C, this::startKey,
-            KeyCode.N, this::newGameKey,
-            KeyCode.R, () -> teamAction(Team.RED),
-            KeyCode.G, () -> teamAction(Team.GREEN),
-            KeyCode.DIGIT1, () -> updateScore(Team.RED, -1),
-            KeyCode.DIGIT4, () -> updateScore(Team.RED, 1),
-            KeyCode.DIGIT2, () -> updateScore(Team.GREEN, -1),
-            KeyCode.DIGIT5, () -> updateScore(Team.GREEN, 1),
-            KeyCode.DIGIT0, this::resetScores
-    );
+    private final Map<KeyCode, Runnable> keyActions = createCombinedMap();
+
+    private Map<KeyCode, Runnable> createCombinedMap() {
+        // Создаём изменяемую карту
+        Map<KeyCode, Runnable> combinedMap = new HashMap<>();
+
+        // Добавляем элементы из первой карты
+        combinedMap.putAll(Map.of(
+                KeyCode.S, () -> mainStage.setFullScreen(true),
+                KeyCode.C, this::startKey,
+                KeyCode.N, this::newGameKey,
+                KeyCode.R, () -> teamAction(Team.RED),
+                KeyCode.G, () -> teamAction(Team.GREEN),
+                KeyCode.DIGIT1, () -> updateScore(Team.RED, -1),
+                KeyCode.DIGIT4, () -> updateScore(Team.RED, 1),
+                KeyCode.DIGIT2, () -> updateScore(Team.GREEN, -1),
+                KeyCode.DIGIT5, () -> updateScore(Team.GREEN, 1),
+                KeyCode.DIGIT0, this::resetScores
+        ));
+
+        // Добавляем обработку цифровой клавиатуры
+        combinedMap.putAll(Map.of(
+                KeyCode.NUMPAD0, this::resetScores,
+                KeyCode.NUMPAD1, () -> updateScore(Team.RED, -1),
+                KeyCode.NUMPAD4, () -> updateScore(Team.RED, 1),
+                KeyCode.NUMPAD2, () -> updateScore(Team.GREEN, -1),
+                KeyCode.NUMPAD5, () -> updateScore(Team.GREEN, 1)
+        ));
+
+        combinedMap.putAll(Map.of(
+                KeyCode.BACK_SPACE, () -> updateScore(Team.GREEN, 1)
+        ));
+
+        return combinedMap;
+    }
 
     @Override
     public void start(Stage stage) {

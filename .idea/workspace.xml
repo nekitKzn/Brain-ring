@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6d4ba2f4-951e-425a-9849-6a07e97df816" name="Changes" comment="version 1">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/nekitvp/brain/Team.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/nekitvp/brain/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/nekitvp/brain/Game.java" afterDir="false" />
-    </list>
+    <list default="true" id="6d4ba2f4-951e-425a-9849-6a07e97df816" name="Changes" comment="рефактор" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -268,7 +264,7 @@
       <workItem from="1731666789093" duration="604000" />
       <workItem from="1731685136460" duration="2128000" />
       <workItem from="1731688605247" duration="72000" />
-      <workItem from="1731688730138" duration="4540000" />
+      <workItem from="1731688730138" duration="4892000" />
     </task>
     <task id="LOCAL-00001" summary="add sounds">
       <option name="closed" value="true" />
@@ -310,7 +306,15 @@
       <option name="project" value="LOCAL" />
       <updated>1731688456805</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="рефактор">
+      <option name="closed" value="true" />
+      <created>1731700824128</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1731700824128</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -334,6 +338,7 @@
     <MESSAGE value="add adaptive" />
     <MESSAGE value="add score" />
     <MESSAGE value="version 1" />
-    <option name="LAST_COMMIT_MESSAGE" value="version 1" />
+    <MESSAGE value="рефактор" />
+    <option name="LAST_COMMIT_MESSAGE" value="рефактор" />
   </component>
 </project>
